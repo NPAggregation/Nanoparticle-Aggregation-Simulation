@@ -21,12 +21,6 @@ U = 0;                  % Potential Energy (J)                          ***#
 
 particles = Particle([]);
 
-%% Initial Computations and Correction Balancing Variables %%
-
-mass = MW / Na / 1000 * 1e28;               % (kg / molecule)
-rNbr = rCut + 3.0;
-rNbr2 = rNbr * rNbr;
-
 %% Initialize Positions %%
 particles = PositionInitialization(N, side, particles);   % Get initial position for particles
 pos = zeros(N, 3);                                        % Pre-allocation of memory
@@ -40,6 +34,14 @@ plot3(pos(:,1), pos(:,2), pos(:,3), 'o', 'MarkerFaceColor', 'k');
 xlabel('x'), ylabel('y'), zlabel('z'), title('Coordinates of Particles');
 xlim([0 ceil(side)]), ylim([0 ceil(side)]), zlim([0 ceil(side)]);
 grid on
+
+%% Initial Computations and Correction Balancing Variables %%
+
+MW = sum
+mass = particles(.SpecieData.elementWeight / Na / 1000 * 1e28;               % (kg / molecule)
+rNbr = rCut + 3.0;
+rNbr2 = rNbr * rNbr;
+
 
 %% Neighbour List %%
 % Compute distance between all pairs of particles
@@ -61,8 +63,9 @@ fprintf('Time (s) Kinetic Energy (aJ) Lennard Jones Potential (aJ) Total Energy 
 LJ = 0;
 x = 0;
 j = 1;
+
 for t = 1:dt:maxStep
-   particles = PositionPredictor(particles, N, dt, mass);
+   particles = PositionPredictor(particles, N, dt);
    particles = BoundaryCondition(N, particles, side);  %% Fix or rethink boundary conditions %%
    particles = ComputeForce(particles, N);
    particles = LennardJonesEvaluator(particles, N, sigma, eps);
@@ -72,7 +75,7 @@ for t = 1:dt:maxStep
    TotVelocity = TotalVelocity(N, particles);
    KE = (1 / 2) * mass * TotVelocity^2;
    TotE = KE + ULJ; 
-   fprintf('%2.2f %15.3f %25.3f %23.3f\n', t, KE, ULJ, TotE);
+   fprintf('%2.2f %15.3f %25.3f %23.3f\n', t - 1, KE, ULJ, TotE);
    U(j) = ULJ;
    LJ(j) = particles(1).LJ(2);
    x(j) = particles(1).NeighborList(2);
@@ -89,6 +92,7 @@ for t = 1:dt:maxStep
    xlim([0 ceil(side)]), ylim([0 ceil(side)]), zlim([0 ceil(side)]);
    grid on
 end
+
 t = 1:dt:maxStep;
 figure
 plot(t, U); title('Total Lennard Jones vs Time')

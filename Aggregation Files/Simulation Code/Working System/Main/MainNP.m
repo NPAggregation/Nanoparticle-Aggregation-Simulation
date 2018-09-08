@@ -1,11 +1,11 @@
 %% General Conditions %%
 T = 300;                % Temperature (K)
 Vn = 512;               % Atom size (Angstroms Cubed/Atom)
-N = 30;                 % Number of Atoms
+N = 2;                 % Number of Atoms
 Vol = N * Vn;           % Total Volume (Angstroms^3)
 side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
 dt = 0.01;              % Time Step (fs)
-MW = 1.0;               % Molecular Weight (Grams/mole)
+MW = 0;                 % Molecular Weight (Grams/mole)
 density = 1 / Vn;       % Molar Density (Atom/Angstrom)
 Na = 6.022e+23;         % Avogadro's Number (Atoms)
 eps = 136;              % Depth of the Potential Well (eV)              ***
@@ -21,13 +21,8 @@ U = 0;                  % Potential Energy (J)                          ***#
 
 particles = Particle([]);
 
-%% Initial Computations and Correction Balancing Variables %%
-
-mass = MW / Na / 1000 * 1e28;               % (kg / molecule)
-rNbr = rCut + 3.0;
-rNbr2 = rNbr * rNbr;
-
 %% Initialize Positions %%
+
 particles = PositionInitialization(N, side, particles);   % Get initial position for particles
 pos = zeros(N, 3);                                        % Pre-allocation of memory
 
@@ -40,6 +35,17 @@ plot3(pos(:,1), pos(:,2), pos(:,3), 'o', 'MarkerFaceColor', 'k');
 xlabel('x'), ylabel('y'), zlabel('z'), title('Coordinates of Particles');
 xlim([0 ceil(side)]), ylim([0 ceil(side)]), zlim([0 ceil(side)]);
 grid on
+
+%% Initial Computations and Correction Balancing Variables %%
+
+for i = 1:N
+   MW = MW + particles(i).SpecieData.elementWeight; 
+end
+
+mass = MW / Na / 1000 * 1e28;               % (kg / molecule)
+rNbr = rCut + 3.0;
+rNbr2 = rNbr * rNbr;
+
 
 %% Neighbour List %%
 % Compute distance between all pairs of particles
@@ -63,7 +69,7 @@ x = 0;
 j = 1;
 
 for t = 1:dt:maxStep
-   particles = PositionPredictor(particles, N, dt, mass);
+   particles = PositionPredictor(particles, N, dt);
    particles = BoundaryCondition(N, particles, side);  %% Fix or rethink boundary conditions %%
    particles = ComputeForce(particles, N);
    particles = LennardJonesEvaluator(particles, N, sigma, eps);
