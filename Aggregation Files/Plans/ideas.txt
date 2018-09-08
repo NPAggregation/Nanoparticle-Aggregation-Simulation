@@ -1,0 +1,2 @@
+learn how to make a pdb file. update position of pdb content with position of
+respective ions and atoms
