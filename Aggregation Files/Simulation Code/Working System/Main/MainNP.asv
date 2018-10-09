@@ -2,17 +2,19 @@
 
 T = 300;                % Temperature (K)
 Vn = 512;               % Atom size (Angstroms Cubed/Atom)
-N = 5;                  % Number of Atoms
+N = 3;                 % Number of Atoms
 Vol = N * Vn;           % Total Volume (Angstroms^3)
 side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
-dt = 0.01;              % Time Step (s)
-MW = 0;                 % Molecular Weight (Grams/Mole)
-Na = 6.022e+23;         % Avogadro's Number (Atoms/Mole)
+dt = 0.01;              % Time Step (fs)
+MW = 0;                 % Molecular Weight (Grams/mole)
+density = 1 / Vn;       % Molar Density (Atom/Angstrom)
+Na = 6.022e+23;         % Avogadro's Number (Atoms)
 eps = 136;              % Depth of the Potential Well (eV)              ***
 sigma = 2.89;           % Collision Diameter (Angstroms)
 rCut = 15;              % Cut-off Distance (Angstroms)
-maxStep = 3;            % Upper bound for iterations
-U = 0;                  % Potential Energy (eV)                          
+kb = 1.38066e-5;        % Boltzmann's Constant (aJ/molecule/K)          ***
+maxStep = 100;          % Upper bound for iterations
+U = 0;                  % Potential Energy (J)                          ***#
 
 %% Property Initialization %%
 % Here we have matrices of N atoms/particles containing their mechanical
@@ -41,7 +43,7 @@ for i = 1:N
    MW = MW + particles(i).SpecieData.elementWeight; 
 end
 
-mass = (N / Na) * MW;                                      % (Grams)
+mass = (N / Na) * MW%MW / Na / 1000 * 1e28;               % (kg / molecule)
 rNbr = rCut + 3.0;
 rNbr2 = rNbr * rNbr;
 

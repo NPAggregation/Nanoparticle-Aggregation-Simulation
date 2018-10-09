@@ -9,7 +9,7 @@ for i = 1:N
 
    Particle(i).Position(1:3) = Particle(i).Position(1:3) + (Particle(i).Velocity(1:3) * dt) + (0.5 * Particle(i).Acceleration(1:3) * dt * dt);
    Particle(i).Velocity(1:3) = Particle(i).Velocity(1:3) + (0.5 * (Particle(i).Force(1:3) * rmass + Particle(i).Acceleration(1:3)) * dt);
-   Particle(i).Acceleration(1:3) = Particle(i).Force(1:3) * rmass * 10^15;
+   Particle(i).Acceleration(1:3) = Particle(i).Force(1:3) * rmass * 10^15;          % 10^15 is a scale factor
 end
 particle = Particle;
 end

@@ -5,7 +5,7 @@
 classdef Specie
     properties
        elementName;                         % Name of element
-       elementWeight;                       % Molecular weight of specie
+       elementWeight;                       % Molecular weight of specie (Grams/Mole)
        elementCharge;                       % Charge of specie
     end
     methods

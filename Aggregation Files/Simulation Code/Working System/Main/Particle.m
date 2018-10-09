@@ -9,7 +9,7 @@
 classdef Particle
     properties
         SpecieData;                     % Holds information on specie
-        NeighborList;                   % List of neighbouring particles
+        NeighborList;                   % List of distance between neighbouring particles (Angstrom)
         Position;                       % Position of particle in system
         Velocity;                       % Velocity Matrix (Angstrom/s)
         Acceleration;                   % Acceleration Matrix (Angstrom/s^2)
