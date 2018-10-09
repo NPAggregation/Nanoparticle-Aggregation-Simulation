@@ -1,7 +1,8 @@
 %% General Conditions %%
+
 T = 300;                % Temperature (K)
 Vn = 512;               % Atom size (Angstroms Cubed/Atom)
-N = 2;                 % Number of Atoms
+N = 100;                 % Number of Atoms
 Vol = N * Vn;           % Total Volume (Angstroms^3)
 side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
 dt = 0.01;              % Time Step (fs)
@@ -12,7 +13,7 @@ eps = 136;              % Depth of the Potential Well (eV)              ***
 sigma = 2.89;           % Collision Diameter (Angstroms)
 rCut = 15;              % Cut-off Distance (Angstroms)
 kb = 1.38066e-5;        % Boltzmann's Constant (aJ/molecule/K)          ***
-maxStep = 2.5;          % Upper bound for iterations
+maxStep = 100;          % Upper bound for iterations
 U = 0;                  % Potential Energy (J)                          ***#
 
 %% Property Initialization %%
@@ -73,10 +74,11 @@ for t = 1:dt:maxStep
    particles = BoundaryCondition(N, particles, side);  %% Fix or rethink boundary conditions %%
    particles = ComputeForce(particles, N);
    particles = LennardJonesEvaluator(particles, N, sigma, eps);
-   ULJ = TotalLennardJones(N, particles);
    particles = ComputeDistance(particles, N, rNbr2);
    
+   ULJ = TotalLennardJones(N, particles);
    TotVelocity = TotalVelocity(N, particles);
+   
    KE = (1 / 2) * mass * TotVelocity^2;
    TotE = KE + ULJ; 
    fprintf('%2.2f %15.3f %25.3f %23.3f\n', t - 1, KE, ULJ, TotE);
