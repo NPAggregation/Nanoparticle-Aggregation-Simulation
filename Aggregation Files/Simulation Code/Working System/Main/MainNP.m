@@ -2,7 +2,7 @@
 
 T = 300;                % Temperature (K)
 Vn = 512;               % Atom size (Angstroms Cubed/Atom)
-N = 5;                  % Number of Atoms
+N = 30;                  % Number of Atoms
 Vol = N * Vn;           % Total Volume (Angstroms^3)
 side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
 dt = 0.01;              % Time Step (s)
