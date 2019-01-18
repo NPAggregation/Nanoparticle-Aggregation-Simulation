@@ -7,13 +7,15 @@ side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
 dt = 0.01;              % Time Step (fs)
 MW = 1.0;               % Molecular Weight (Grams/mole)
 density = 1 / Vn;       % Molar Density (Atom/Angstrom)
-Na = 6.022e+23;         % Avogadro's Number (Atoms)
+Na = 6.022e+23;         % Avogadro's Number (Atoms/mole)
 eps = 136;              % Depth of the Potential Well (eV)              ***
 sigma = 2.89;           % Collision Diameter (Angstroms)
 rCut = 15;              % Cut-off Distance (Angstroms)
-kb = 1.38066e-5;        % Boltzmann's Constant (aJ/molecule/K)          ***
+kb = 1.38066e-23;       % Boltzmann's Constant (J/molecule/K)          ***
 maxStep = 2.5;          % Upper bound for iterations
 U = 0;                  % Potential Energy (J)                          ***#
+n = 4.98*10^-23;        % Moles in system
+R = 8.314;              % Joules/(mole*K)
 
 %% Property Initialization %%
 % Here we have matrices of N atoms/particles containing their mechanical
@@ -23,7 +25,7 @@ particles = Particle([]);
 
 %% Initial Computations and Correction Balancing Variables %%
 
-mass = MW / Na / 1000 * 1e28;               % (kg / molecule)
+mass = MW * 2 / Na / 1000;               % (kg / molecule)
 rNbr = rCut + 3.0;
 rNbr2 = rNbr * rNbr;
 
@@ -51,7 +53,7 @@ particles = ComputeDistance(particles, N, rNbr2);
 particles = ComputeForce(particles, N);
 
 %% Subroutines %%
-% The following methods will compute thew new position of particles,
+% The following methods will compute the new position of particles,
 % evaluate the forces in the system, correct position computations based on
 % repulsiong/attractive forces and gear corrector, apply the periodic
 % boundary conditions, scale velocity, update neighbours list and print the
@@ -61,6 +63,7 @@ fprintf('Time (s) Kinetic Energy (aJ) Lennard Jones Potential (aJ) Total Energy 
 LJ = 0;
 x = 0;
 j = 1;
+
 for t = 1:dt:maxStep
    particles = PositionPredictor(particles, N, dt, mass);
    particles = BoundaryCondition(N, particles, side);  %% Fix or rethink boundary conditions %%
@@ -72,13 +75,24 @@ for t = 1:dt:maxStep
    TotVelocity = TotalVelocity(N, particles);
    KE = (1 / 2) * mass * TotVelocity^2;
    TotE = KE + ULJ; 
-   fprintf('%2.2f %15.3f %25.3f %23.3f\n', t, KE, ULJ, TotE);
+   fprintf('%2.2f %15.3f %25.3f %23.3f\n', t - 1, KE, ULJ, TotE);
    U(j) = ULJ;
    LJ(j) = particles(1).LJ(2);
    x(j) = particles(1).NeighborList(2);
    j = j + 1;
    
+   %%% Computing T, Velocity Scale, and Force Scale %%%
+
+   Temp = 2 * KE / 3 / R / N;
+   fprintf('%.f\n',Temp);
+   
+   Temperature = 2 * Na * KE * N / 3 / R / 1e18;
+   
+   VelocityScale = Temp / T;
    pos = zeros(N, 3);
+   
+   ForceScale = 1 / VelocityScale;
+   
    for i = 1:3
        pos(:, i) = GetVectorProps(particles, N, i);
    end
@@ -89,6 +103,10 @@ for t = 1:dt:maxStep
    xlim([0 ceil(side)]), ylim([0 ceil(side)]), zlim([0 ceil(side)]);
    grid on
 end
+
+
+
+
 t = 1:dt:maxStep;
 figure
 plot(t, U); title('Total Lennard Jones vs Time')

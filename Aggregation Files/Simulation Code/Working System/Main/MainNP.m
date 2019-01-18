@@ -12,7 +12,7 @@ eps = 136;              % Depth of the Potential Well (eV)              ***
 sigma = 2.89;           % Collision Diameter (Angstroms)
 rCut = 15;              % Cut-off Distance (Angstroms)
 kb = 1.38066e-5;        % Boltzmann's Constant (aJ/molecule/K)          ***
-maxStep = 2.5;          % Upper bound for iterations
+maxStep = 10;          % Upper bound for iterations
 U = 0;                  % Potential Energy (J)                          ***#
 
 %% Property Initialization %%
