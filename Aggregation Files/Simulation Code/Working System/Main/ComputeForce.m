@@ -8,7 +8,7 @@ for i = 1:N
             distance(1:3) = Particle(i).Position(1:3) - Particle(j).Position(1:3);
             totalDistance = sqrt(sum(distance.^2));
             truncDistance = min(totalDistance, pi / 2.0);
-            disp((Particle(i).Force(1:3) - distance(1:3).*sin(2.0 * truncDistance) / totalDistance) / velocity_scale);
+            
             Particle(i).Force(1:3) = (Particle(i).Force(1:3) - distance(1:3).*sin(2.0 * truncDistance) / totalDistance) / velocity_scale;
             Particle(j).Force(1:3) = (Particle(j).Force(1:3) - distance(1:3).*sin(2.0 * truncDistance) / totalDistance) / velocity_scale;
         end
