@@ -14,6 +14,10 @@ rCut = 15;              % Cut-off Distance (Angstroms)
 kb = 1.38066e-5;        % Boltzmann's Constant (aJ/molecule/K)          ***
 maxStep = 10;          % Upper bound for iterations
 U = 0;                  % Potential Energy (J)                          ***#
+Ek_adjust = 10^-23;     % Joules
+Ek = ?;
+n = 4.98*10^-23;       % Moles in system
+R = 8.314;              % Joules/(mole*K)
 
 %% Property Initialization %%
 % Here we have matrices of N atoms/particles containing their mechanical
@@ -79,6 +83,11 @@ for t = 1:dt:maxStep
    x(j) = particles(1).NeighborList(2);
    j = j + 1;
    
+   %%% Computing T %%%
+
+   Temp = Ek_adjust * Na * KE / n / R;
+   fprintf('%.f\n',Temp);
+   
    pos = zeros(N, 3);
    for i = 1:3
        pos(:, i) = GetVectorProps(particles, N, i);
@@ -90,6 +99,9 @@ for t = 1:dt:maxStep
    xlim([0 ceil(side)]), ylim([0 ceil(side)]), zlim([0 ceil(side)]);
    grid on
 end
+
+
+
 
 t = 1:dt:maxStep;
 figure
