@@ -1,8 +1,8 @@
 %% General Conditions %%
 
-T0 = 1;                % Temperature (K)
+T0 = 300;                % Temperature (K)
 Vn = 512;               % Atom size (Angstroms Cubed/Atom)
-N = 2;                  % Number of Atoms
+N = 30;                  % Number of Atoms
 Vol = N * Vn;           % Total Volume (Angstroms^3)
 side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
 dt = 0.001;              % Time Step (s)
@@ -68,7 +68,7 @@ x = 0;
 j = 1;
 
 R = 8.314;                                                  % Gas Constant
-Ek_Adjust = 10^-23;                                         % Kinetic Energy Adjustment Factor
+Ek_Adjust = 1;                                         % Kinetic Energy Adjustment Factor
 velocity_scale = 1;                                         % Constant used to maintain constant T
 
 for t = 1:dt:maxStep
