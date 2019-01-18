@@ -1,18 +1,18 @@
 %% General Conditions %%
 
-T0 = 1;                % Temperature (K)
-Vn = 512;               % Atom size (Angstroms Cubed/Atom)
-N = 2;                  % Number of Atoms
-Vol = N * Vn;           % Total Volume (Angstroms^3)
+T0 = 200;               % Temperature (K)
+Vn = 512;               % Atom size (m^3)
+N = 30;                 % Number of Atoms
+Vol = N * Vn;           % Total Volume (m^3)
 side = Vol^(1.0/3.0);   % Length of Side of Simulation Volume (Angstrom)
-dt = 0.001;              % Time Step (s)
-MW = 0;                 % Molecular Weight (Grams/Mole)
+dt = 0.01;             % Time Step (s)
+MW = 0;                 % Molecular Weight (Kilograms/Mole)
 Na = 6.022e+23;         % Avogadro's Number (Atoms/Mole)
 eps = 136;              % Depth of the Potential Well (eV)              ***
-sigma = 2.89;           % Collision Diameter (Angstroms)
-rCut = 15;              % Cut-off Distance (Angstroms)
+sigma = 2.89e-10;       % Collision Diameter (m)
+rCut = 15;              % Cut-off Distance (m)
 maxStep = 3;            % Upper bound for iterations
-U = 0;                  % Potential Energy (eV)                          
+U = 0;                  % Potential Energy (J)                          
 
 %% Property Initialization %%
 % Here we have matrices of N atoms/particles containing their mechanical
@@ -23,6 +23,7 @@ particles = Particle([]);
 %% Initialize Positions %%
 
 particles = PositionInitialization(N, side, particles);   % Get initial position for particles
+particles = InitializeVelocity(particles, N, T0);
 pos = zeros(N, 3);                                        % Pre-allocation of memory
 
 for i = 1:3
@@ -41,7 +42,8 @@ for i = 1:N
    MW = MW + particles(i).SpecieData.elementWeight; 
 end
 
-mass = (N / Na) * MW;                                      % (Grams)
+%mass = (N / Na) * MW;                                      % (Kg)
+mass = MW * 1e28 / Na / 1000;
 rNbr = rCut + 3.0;
 rNbr2 = rNbr * rNbr;
 
@@ -62,17 +64,18 @@ particles = ComputeForce(particles, N, 1);
 % boundary conditions, scale velocity, update neighbours list and print the
 % results for each time step up until the max time.
 
-%fprintf('Time (s) Kinetic Energy (aJ) Lennard Jones Potential (aJ) Total Energy (aJ)\n');
+fprintf('Time (s) Kinetic Energy (aJ) Lennard Jones Potential (aJ) Total Energy (aJ) Temperature (K)\n');
 LJ = 0;
 x = 0;
 j = 1;
 
 R = 8.314;                                                  % Gas Constant
-Ek_Adjust = 10^-23;                                         % Kinetic Energy Adjustment Factor
+Ek_Adjust = 1;                                              % Kinetic Energy Adjustment Factor
 velocity_scale = 1;                                         % Constant used to maintain constant T
+bounds = zeros(1, 2); bounds(1) = 100; bounds(2) = 0.5;
 
 for t = 1:dt:maxStep
-   particles = PositionPredictor(particles, N, dt);
+   particles = PositionPredictor(particles, N, dt, velocity_scale);
    particles = BoundaryCondition(N, particles, side);
    particles = ComputeForce(particles, N, velocity_scale);
    particles = LennardJonesEvaluator(particles, N, sigma, eps);
@@ -82,10 +85,10 @@ for t = 1:dt:maxStep
    TotVelocity = TotalVelocity(N, particles);
    
    KE = (1 / 2) * mass * TotVelocity^2;
-   T = ComputeSystemTemperature(KE, Ek_Adjust, Na, N, R);
-   velocity_scale = sqrt(T/T0);
+   T = ComputeSystemTemperature(KE, Ek_Adjust, Na, R);
+   velocity_scale = TemperatureScale(T, T0, bounds);
    TotE = KE + ULJ;
-   %fprintf('%2.2f %15.3f %25.3f %23.3f\n', t - 1, KE, ULJ, TotE);
+   fprintf('%2.3f %15.3f %25.3f %23.3f %10.3f\n', t - 1, KE, ULJ, TotE, T);
    U(j) = ULJ;
    LJ(j) = particles(1).LJ(2);
    x(j) = particles(1).NeighborList(2);
